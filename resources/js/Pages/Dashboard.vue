@@ -1,7 +1,6 @@
 <script setup>
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { Head } from '@inertiajs/vue3';
-import { Link } from '@inertiajs/inertia-vue3';  // Импорт компонента Link для навигации
+import { Head, Link } from '@inertiajs/vue3';
 </script>
 
 <template>

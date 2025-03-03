@@ -20,28 +20,28 @@
                                     v-model="form.code"
                                     id="code"
                                     class="mt-2 p-2 w-full border border-gray-300 rounded-md"
-                                    :class="{'border-red-500': errors.code}"
+                                    :class="{'border-red-500': form.errors.code}"
                                     placeholder="Введите код из сообщения"
                                     required
                                 />
-                                <p v-if="errors.code" class="text-sm text-red-500 mt-1">{{ errors.code }}</p>
+                                <p v-if="form.errors.code" class="text-sm text-red-500 mt-1">{{ form.errors.code }}</p>
                             </div>
 
                             <button
                                 type="submit"
-                                :disabled="form.processing"
+                                :disabled="form.processing || processing"
                                 class="mt-4 inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
                             >
-                                <span v-if="form.processing">Подтверждение...</span>
+                                <span v-if="form.processing || processing">Подтверждение...</span>
                                 <span v-else>Подтвердить</span>
                             </button>
                         </form>
 
-                        <div v-if="message" class="mt-3 text-sm text-green-600">
-                            {{ message }}
+                        <div v-if="props.message" class="mt-3 text-sm text-green-600">
+                            {{ props.message }}
                         </div>
-                        <div v-if="error" class="mt-3 text-sm text-red-600">
-                            {{ error }}
+                        <div v-if="props.error" class="mt-3 text-sm text-red-600">
+                            {{ props.error }}
                         </div>
                     </div>
                 </div>
@@ -50,57 +50,33 @@
     </AuthenticatedLayout>
 </template>
 
-<script>
-import { Head } from "@inertiajs/vue3";
-import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+<script setup>
+import { ref } from 'vue';
+import { Head, useForm } from '@inertiajs/vue3';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
-export default {
-    components: {
-        AuthenticatedLayout,
-        Head
-    },
-    props: {
-        errors: Object, // получаем ошибки через props
-        message: String,
-        error: String
-    },
-    data() {
-        return {
-            form: {
-                code: '',
-                processing: false
-            },
-        };
-    },
-    methods: {
-        async verifyCode() {
-            this.form.processing = true;
+const props = defineProps({
+    errors: Object,
+    message: String,
+    error: String
+});
 
-            try {
-                await this.$inertia.post('/user/settings/verify-code', {
-                    code: this.form.code
-                });
+const form = useForm({
+    code: ''
+});
 
-                this.message = "Код подтверждения успешно отправлен.";
-                this.error = null;
-                this.errors = {};
+const processing = ref(false);
 
-                this.form.code = '';
-            } catch (error) {
-                if (error.response && error.response.data) {
-                    this.error = error.response.data.message;
-                    this.message = null;
-
-                    if (error.response.data.errors) {
-                        this.errors = error.response.data.errors;
-                    }
-                } else {
-                    this.error = "Произошла неизвестная ошибка.";
-                }
-            } finally {
-                this.form.processing = false;
-            }
-        }
+const verifyCode = async () => {
+    processing.value = true;
+    
+    try {
+        await form.post('/user/settings/verify-code');
+        form.reset();
+    } catch (error) {
+        console.error('Error:', error);
+    } finally {
+        processing.value = false;
     }
 };
 </script>

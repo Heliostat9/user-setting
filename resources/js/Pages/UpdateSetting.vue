@@ -1,7 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { useForm } from '@inertiajs/inertia-vue3';  // Импортируем useForm
-import { usePage } from '@inertiajs/inertia-vue3'; // Для доступа к данным Inertia
+import { useForm, usePage } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import { Head } from '@inertiajs/vue3';
 
